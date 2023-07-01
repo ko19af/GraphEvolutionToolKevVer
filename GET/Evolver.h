@@ -9,14 +9,10 @@
 
  // Kevin, replace the variables without declaration either with global definitions or instance variables in Evolver.
 
- const int popSize = 10;// size of the initial population
- int numGenerations = 10000;// number of mating events that will be performed
- double mutationRate = 0.05;// 
- double crossoverRate = 0.5;// 
- int tournSize = 7;// the size of the tournament that will be conducted
- int fits[popSize];// array holding the fitness values of the population members
+
+ int fits[POPULATION_SIZE];// array holding the fitness values of the population members
  SDA *SDAPop;// array containing the members of the population
- bool dead[popSize];// array holding information on whether a member of the population is dead
+ bool dead[POPULATION_SIZE];// array holding information on whether a member of the population is dead
 
 using namespace std;
 
@@ -33,8 +29,6 @@ private:
 
     vector<representation> population;
     vector<float> fitnessVals;
-
-    float currentMutationRate;
 };
 
 /**This method initializes the population
@@ -43,7 +37,7 @@ private:
 
 vector<SDA> initPop(){
     // Generate the Initial Population
-    for (int idx = 0; idx < popSize; idx++) {// generate a population based on the populaiton size defined
+    for (int idx = 0; idx < POPULATION_SIZE; idx++) {// generate a population based on the populaiton size defined
          dead[idx] = false;// initialize ll members of the population to be alive
          SDAPop[idx].fillOutput(SDAOutput);// The "fillOutput" method in the SDA class needs to be created or changed to what it is now!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
          while (necroticFilter()) {
@@ -70,13 +64,13 @@ vector<int> tournSelect(int size, bool decreasing) {
     int idxToAdd;
 
     tournIdxs.reserve(size);// reserve space for tournament vector
-    if (size == popSize) {// if tournament size fed into method is same as initial popsize
+    if (size == POPULATION_SIZE) {// if tournament size fed into method is same as initial popsize
         for (int idx = 0; idx < size; idx++) {//push each meber of population into tournament index vector
             tournIdxs.push_back(idx);
         }
     } else {// if the popsizes are different
         do {// do this while the tournament vector size is less than the tournament size
-            idxToAdd = (int) lrand48() % popSize;// randomly chooses a number within the population range
+            idxToAdd = (int) lrand48() % POPULATION_SIZE;// randomly chooses a number within the population range
             if (count(tournIdxs.begin(), tournIdxs.end(), idxToAdd) == 0) {// check if the number is not already in tournament vector
                 tournIdxs.push_back(idxToAdd);// push into tournament vector
             }
@@ -94,17 +88,17 @@ void matingEvent() {
     int numMuts;// number of mutation that will be perofrmed
     vector<int> tournIdxs;// vector holding the results from the tournament selection
     // Selection
-    tournIdxs = tournSelect(tournSize, ctrlFitnessFctn == 1);// perform tournament selection
+    tournIdxs = tournSelect(TOURNAMENT_SIZE, ctrlFitnessFctn == 1);// perform tournament selection
 
     // Copy the Parents -> Children
-    SDAPop[tournIdxs[0]].copy(SDAPop[tournIdxs[tournSize - 2]]);
-    SDAPop[tournIdxs[1]].copy(SDAPop[tournIdxs[tournSize - 1]]);
+    SDAPop[tournIdxs[0]].copy(SDAPop[tournIdxs[TOURNAMENT_SIZE - 2]]);
+    SDAPop[tournIdxs[1]].copy(SDAPop[tournIdxs[TOURNAMENT_SIZE - 1]]);
 
     // perform two point crossover on the selected parents to produce the children
-    if (drand48() < crossoverRate) SDAPop[tournIdxs[0]].twoPointCrossover(SDAPop[tournIdxs[1]]);
+    if (drand48() < CROSSOVER_RATE) SDAPop[tournIdxs[0]].twoPointCrossover(SDAPop[tournIdxs[1]]);
 
     // Mutation
-    if (drand48() < mutationRate) {// if mutation occurs, perform mutation on the children generated
+    if (drand48() < MUTATION_RATE) {// if mutation occurs, perform mutation on the children generated
         numMuts = (int) lrand48() % maxMuts + 1;
         SDAPop[tournIdxs[0]].mutate(numMuts);
         numMuts = (int) lrand48() % maxMuts + 1;
